@@ -7,6 +7,8 @@ from data import db_session
 from data.login_form import LoginForm
 from data.users import User
 from data.register import RegisterForm
+from data.comments_form import CommentForm
+from data.comments import Comment
 from data.torrents import Torrents
 from data.add_torrent import AddTorrentForm
 from data.tags import Tag
@@ -33,6 +35,7 @@ def login():
         user = db_sess.query(User).filter(User.email == form.email.data).first()
         if user and user.check_password(form.password.data):
             login_user(user, remember=form.remember_me.data)
+            db_sess.close()
             return redirect("/")
         return render_template('login.html', message="Ошибка в логине или пароле", form=form)
     return render_template('login.html', title='Авторизация', form=form)
@@ -45,9 +48,11 @@ def index():
     if q:
         torrents = db_sess.query(Torrents).filter(
             Torrents.name.contains(q)).all()
+        db_sess.close()
         return render_template('torrents.html', torrents=torrents, title='Результаты поиска')
     else:
         torrents = db_sess.query(Torrents).all()
+        db_sess.close()
         return render_template('torrents.html', torrents=torrents, title='Последние торренты')
 
 
@@ -83,6 +88,7 @@ def reqister():
         user.set_password(form.password.data)
         db_sess.add(user)
         db_sess.commit()
+        db_sess.close()
         return redirect('/login')
     return render_template('register.html', title='Регистрация', form=form, captcha=captcha)
 
@@ -112,20 +118,47 @@ def addtorrent():
         torrent.tags.append(tag)
         db_sess.add(torrent)
         db_sess.commit()
+        db_sess.close()
         return redirect('/')
     db_sess = db_session.create_session()
     tags = db_sess.query(Tag).all()
+    db_sess.close()
     return render_template('addtorrent.html', title='Добавление торрента', form=add_form, tags=tags)
 
 
-@app.route('/torrents/<int:id>')
+@app.route('/torrents/<int:id>', methods=['GET', 'POST'])
 def view_page(id):
     db_sess = db_session.create_session()
     torrent = db_sess.query(Torrents).filter(Torrents.id == id).first()
-    tags = torrent.tags
     if torrent:
-        return render_template('view_page.html', torrent=torrent, tags=tags)
+        tags = torrent.tags
+        comments = torrent.comments
+        db_sess.close()
+        return render_template('view_page.html', torrent=torrent, tags=tags, comms=comments, negr=int(id))
     else:
+        db_sess.close()
+        flask.abort(404)
+
+
+@app.route('/add-comm/<int:id>', methods=['POST', 'GET'])
+@login_required
+def add_comm(id):
+    form = CommentForm()
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        torrent = db_sess.query(Torrents).filter(Torrents.id == id).first()
+        comment = Comment(text=form.comment.data, torrent=torrent, user_name=flask_login.current_user.name)
+        db_sess.add(comment)
+        db_sess.commit()
+        db_sess.close()
+        return redirect(f'/torrents/{id}')
+    db_sess = db_session.create_session()
+    torrent = db_sess.query(Torrents).filter(Torrents.id == id).first()
+    if torrent:
+        db_sess.close()
+        return render_template('addcomment.html', form=form)
+    else:
+        db_sess.close()
         flask.abort(404)
 
 
@@ -166,6 +199,7 @@ def edit_torrent(id):
             torrent.pic_url = form.pic_url.data
             torrent.magnet = form.magnet.data
             db_sess.commit()
+            db_sess.close()
             return redirect(f'/torrents/{id}')
         else:
             flask.abort(404)
@@ -184,6 +218,7 @@ def delete_torrent(id):
     if torrent:
         db_sess.delete(torrent)
         db_sess.commit()
+        db_sess.close()
         return redirect('/my-torrents')
     else:
         flask.abort(404)

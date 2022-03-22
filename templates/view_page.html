@@ -12,7 +12,7 @@
                 <h1>{{ torrent.name }}</h1>
                 <div class="post-meta">
                     <span>{{ torrent.created_date }}</span>
-                    <span class="author">{{ torrent.user.name }}</span>
+                    <span class="author">{{ torrent.user_name }}</span>
                 </div>
             </div>
             <p>
@@ -26,9 +26,34 @@
             <h5>Теги:</h5>
             {% for tag in tags%}
                 <a href="{{ url_for('tags', name=tag.name) }}">
-                <span class="badge bg-primary">{{ tag.name }}</span>
-                    <a/>
+                    <span class="badge bg-primary">{{ tag.name }}</span>
+                </a>
             {% endfor %}
+        </div>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <a href="{{ url_for('add_comm', id=negr) }}">Добавить комментарий</a>
+        <br>
+        <br>
+        <br>
+        <br>
+        <div data-bs-spy="scroll" class="scrollspy-example" tabindex="0">
+          {% for comm in comms %}
+          <h3 id="{{ comm.id }}">{{ comm.user_name }}</h3>
+          <p>{{ comm.text }}</p>
+          {% endfor %}
         </div>
     </div>
 </div>

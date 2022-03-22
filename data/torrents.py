@@ -15,5 +15,6 @@ class Torrents(SqlAlchemyBase):
     created_date = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.datetime.now)
     user_id = sqlalchemy.Column(sqlalchemy.Integer,
                                 sqlalchemy.ForeignKey("users.id"))
-    tags = orm.relationship('Tag', secondary=tags, backref=orm.backref('torrents', lazy='dynamic'))
     user = orm.relation('User')
+    tags = orm.relationship('Tag', secondary=tags, backref=orm.backref('torrents', lazy='dynamic'))
+    comments = orm.relation("Comment", back_populates='torrent')
