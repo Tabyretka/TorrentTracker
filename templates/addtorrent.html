@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>{{title}}</h1>
+
+<form action="" method="post">
+    {{ form.hidden_tag() }}
+    {{ form.csrf_token }}
+    <p>
+        {{ form.name.label }}<br>
+        {{ form.name(class="form-control") }}<br>
+        {% for error in form.name.errors %}
+    <p class="alert alert-danger" role="alert">
+        {{ error }}
+    </p>
+    {% endfor %}
+    </p>
+    <p>
+        {{ form.description.label }}<br>
+        {{ form.description(class="form-control") }}<br>
+        {% for error in form.description.errors %}
+    <p class="alert alert-danger" role="alert">
+        {{ error }}
+    </p>
+    {% endfor %}
+    </p>
+        <p>
+        {{ form.pic_url.label }}<br>
+        {{ form.pic_url(class="form-control") }}<br>
+        {% for error in form.pic_url.errors %}
+    <p class="alert alert-danger" role="alert">
+        {{ error }}
+    </p>
+    {% endfor %}
+    </p>
+    </p>
+        <p>
+        {{ form.magnet.label }}<br>
+        {{ form.magnet(class="form-control") }}<br>
+        {% for error in form.magnet.errors %}
+    <p class="alert alert-danger" role="alert">
+        {{ error }}
+    </p>
+    {% endfor %}
+    </p>
+    <h5>Выберите тег:</h5>
+    {% for tag in tags%}
+    <div class="form-check">
+      <input class="form-check-input" type="radio" name="Tags" id="{{ tag.id }}" value="{{ tag.id }}" checked>
+        <label class="form-check-label" for="{{ tag.id }}">
+        {{ tag.name }}
+        </label>
+    </div>
+    {% endfor %}
+    <br>
+    <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
+    {{message}}
+</form>
+{% endblock %}

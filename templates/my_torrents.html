@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block content %}
+<meta charset="UTF-8">
+<h2 align="center">{{ title }}</h2>
+<br>
+<div class="row">
+{% if torrents %}
+{% for torrent in torrents %}
+<div class="table_container">
+    <table class="my_table">
+        <div class="card" style="width: 18rem;">
+            <img src="{{ torrent.pic_url }}" class="card-img-top" alt="фото поломалось">
+            <div class="card-body">
+                <h5 class="card-title">{{ torrent.name }}</h5>
+                <p class="card-text">{{ torrent.description[:100:] }}...</p>
+                <a href="{{ url_for('edit_torrent', id=torrent.id) }}" class="btn btn-warning">Редактировать</a>
+                <a href="{{ url_for('delete_torrent', id=torrent.id) }}" class="btn btn-danger">Удалить</a>
+            </div>
+        </div>
+        <br>
+    </table>
+</div>
+<br>
+{% endfor %}
+</div>
+{% else %}
+<h1 class="sss">У вас еще нет ни 1 торрента</h1>
+<style>
+.sss {
+    text-align: center;
+}
+</style>
+{% endif %}
+{% endblock %}
