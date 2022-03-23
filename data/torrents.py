@@ -18,3 +18,6 @@ class Torrents(SqlAlchemyBase):
     user = orm.relation('User')
     tags = orm.relationship('Tag', secondary=tags, backref=orm.backref('torrents', lazy='dynamic'))
     comments = orm.relation("Comment", back_populates='torrent')
+
+    def __repr__(self):
+        return '<Torrent id: {}, name: {}>'.format(self.id, self.name)

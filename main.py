@@ -3,6 +3,8 @@ import flask_login
 from flask import Flask, render_template, redirect, request
 from flask_login import LoginManager, login_user, login_required, logout_user
 from flask_simple_captcha import CAPTCHA
+from flask_admin import Admin
+from flask_admin.contrib.sqla import ModelView
 from data import db_session
 from data.login_form import LoginForm
 from data.users import User
@@ -240,8 +242,12 @@ def page_not_found(e):
 
 def main():
     db_session.global_init("db/db.sqlite")
-
+    db_sess = db_session.create_session()
+    admin = Admin(app)
+    admin.add_views(ModelView(Torrents, db_sess), ModelView(Tag, db_sess), ModelView(User, db_sess),
+                    ModelView(Comment, db_sess))
     app.run(debug=True, use_debugger=True, use_reloader=True)
+    db_sess.close()
 
 
 if __name__ == '__main__':

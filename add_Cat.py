@@ -21,7 +21,7 @@ def create():
     db_sess.commit()
 
 
-def zalupa():
+def zzz():
     db_session.global_init("db/db.sqlite")
     db_sess = db_session.create_session()
     tor = db_sess.query(Torrents).first()
@@ -31,4 +31,4 @@ def zalupa():
     db_sess.close()
 
 
-zalupa()
+create()
