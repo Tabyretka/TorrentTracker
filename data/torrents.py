@@ -1,11 +1,12 @@
 import datetime
 import sqlalchemy
 from sqlalchemy import orm
+from sqlalchemy_serializer import SerializerMixin
 from .db_session import SqlAlchemyBase
 from .tags import tags
 
 
-class Torrents(SqlAlchemyBase):
+class Torrents(SqlAlchemyBase, SerializerMixin):
     __tablename__ = 'torrents'
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
     name = sqlalchemy.Column(sqlalchemy.String, nullable=True)

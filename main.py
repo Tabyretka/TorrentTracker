@@ -5,7 +5,8 @@ from flask_login import LoginManager, login_user, login_required, logout_user
 from flask_simple_captcha import CAPTCHA
 from flask_admin import Admin, AdminIndexView
 from flask_admin.contrib.sqla import ModelView
-from data import db_session
+
+from data import db_session, api
 from data.login_form import LoginForm
 from data.users import User
 from data.register import RegisterForm
@@ -289,6 +290,7 @@ def main():
     admin = Admin(app, 'Torrent Tracker', url='/', index_view=HomeAdminView(name='home'))
     admin.add_views(AdminView(Torrents, db_sess), AdminView(Tag, db_sess), AdminView(User, db_sess),
                     AdminView(Comment, db_sess))
+    app.register_blueprint(api.blueprint)
     app.run(debug=True, use_debugger=True, use_reloader=True)
     db_sess.close()
 
