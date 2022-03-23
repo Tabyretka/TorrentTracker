@@ -3,7 +3,7 @@ import flask_login
 from flask import Flask, render_template, redirect, request
 from flask_login import LoginManager, login_user, login_required, logout_user
 from flask_simple_captcha import CAPTCHA
-from flask_admin import Admin
+from flask_admin import Admin, AdminIndexView
 from flask_admin.contrib.sqla import ModelView
 from data import db_session
 from data.login_form import LoginForm
@@ -21,6 +21,34 @@ CAPTCHA = CAPTCHA(config={'SECRET_CAPTCHA_KEY': 'wMmeltW4mhwidorQRli6Oijuhygtfgy
 app = CAPTCHA.init_app(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
+
+
+class AdminView(ModelView):
+    def is_accessible(self):
+        db_sess = db_session.create_session()
+        user = db_sess.query(User).filter(User.name == flask_login.current_user.name).first()
+        if user.type == 1:
+            db_sess.close()
+            return True
+        db_sess.close()
+        return False
+
+    def inaccessible_callback(self, name, **kwargs):
+        return flask.abort(404)
+
+
+class HomeAdminView(AdminIndexView):
+    def is_accessible(self):
+        db_sess = db_session.create_session()
+        user = db_sess.query(User).filter(User.name == flask_login.current_user.name).first()
+        if user.type == 1:
+            db_sess.close()
+            return True
+        db_sess.close()
+        return False
+
+    def inaccessible_callback(self, name, **kwargs):
+        return flask.abort(404)
 
 
 @login_manager.user_loader
@@ -82,16 +110,31 @@ def reqister():
         if not CAPTCHA.verify(c_text, c_hash):
             return render_template('register.html', title='Регистрация', form=form,
                                    message="Неверная каптча", captcha=captcha)
-        user = User(
-            name=form.name.data,
-            age=form.age.data,
-            email=form.email.data
-        )
-        user.set_password(form.password.data)
-        db_sess.add(user)
-        db_sess.commit()
-        db_sess.close()
-        return redirect('/login')
+
+        all_users = db_sess.query(User).all()
+        if all_users:
+            user = User(
+                name=form.name.data,
+                age=form.age.data,
+                email=form.email.data
+            )
+            user.set_password(form.password.data)
+            db_sess.add(user)
+            db_sess.commit()
+            db_sess.close()
+            return redirect('/login')
+        else:
+            user = User(
+                name=form.name.data,
+                age=form.age.data,
+                email=form.email.data,
+                type=1
+            )
+            user.set_password(form.password.data)
+            db_sess.add(user)
+            db_sess.commit()
+            db_sess.close()
+            return redirect('/login')
     return render_template('register.html', title='Регистрация', form=form, captcha=captcha)
 
 
@@ -243,9 +286,9 @@ def page_not_found(e):
 def main():
     db_session.global_init("db/db.sqlite")
     db_sess = db_session.create_session()
-    admin = Admin(app)
-    admin.add_views(ModelView(Torrents, db_sess), ModelView(Tag, db_sess), ModelView(User, db_sess),
-                    ModelView(Comment, db_sess))
+    admin = Admin(app, 'Torrent Tracker', url='/', index_view=HomeAdminView(name='home'))
+    admin.add_views(AdminView(Torrents, db_sess), AdminView(Tag, db_sess), AdminView(User, db_sess),
+                    AdminView(Comment, db_sess))
     app.run(debug=True, use_debugger=True, use_reloader=True)
     db_sess.close()
 
