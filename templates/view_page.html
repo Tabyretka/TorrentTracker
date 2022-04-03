@@ -25,9 +25,7 @@
             <br>
             <h5>Теги:</h5>
             {% for tag in tags%}
-                <a href="{{ url_for('tags', name=tag.name) }}">
-                    <span class="badge bg-primary">{{ tag.name }}</span>
-                </a>
+                <a href="{{ url_for('tags', name=tag.name) }}" class="badge badge-primary">{{ tag.name }}</a>
             {% endfor %}
         </div>
         <br>

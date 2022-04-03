@@ -6,7 +6,7 @@ from flask_simple_captcha import CAPTCHA
 from flask_admin import Admin, AdminIndexView
 from flask_admin.contrib.sqla import ModelView
 
-from data import db_session, api
+from data import db_session, api, chat
 from data.login_form import LoginForm
 from data.users import User
 from data.register import RegisterForm
@@ -79,12 +79,10 @@ def index():
     if q:
         torrents = db_sess.query(Torrents).filter(
             Torrents.name.contains(q)).all()
-        db_sess.close()
-        return render_template('torrents.html', torrents=torrents, title='Результаты поиска')
     else:
         torrents = db_sess.query(Torrents).all()
-        db_sess.close()
-        return render_template('torrents.html', torrents=torrents, title='Последние торренты')
+    db_sess.close()
+    return render_template('torrents.html', torrents=torrents, title='Последние торренты')
 
 
 @app.route('/logout')
@@ -152,16 +150,18 @@ def addtorrent():
                 pic_url = add_form.pic_url.data
         else:
             pic_url = ''
-        tag = request.form['Tags']
-        tag = db_sess.query(Tag).filter(Tag.id == int(tag)).first()
+        tag_id = request.form['Tags']
+        tag = db_sess.query(Tag).filter(Tag.id == int(tag_id)).first()
+        user = db_sess.query(User).filter(User.name == flask_login.current_user.name).first()
         torrent = Torrents(
             name=add_form.name.data,
             description=add_form.description.data,
-            user=flask_login.current_user,
+            user=user,
             pic_url=pic_url,
-            magnet=add_form.magnet.data
+            magnet=add_form.magnet.data,
+            tags=[tag]
         )
-        torrent.tags.append(tag)
+        # torrent.tags.append(tag)
         db_sess.add(torrent)
         db_sess.commit()
         db_sess.close()
@@ -279,6 +279,11 @@ def tags(name):
     return render_template('torrents.html', torrents=torrents, title=f'Торренты с тегом "{tag.name}"')
 
 
+@app.route('/about')
+def about():
+    return render_template('about.html', title='ABOUT')
+
+
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template('404.html')
@@ -291,6 +296,7 @@ def main():
     admin.add_views(AdminView(Torrents, db_sess), AdminView(Tag, db_sess), AdminView(User, db_sess),
                     AdminView(Comment, db_sess))
     app.register_blueprint(api.blueprint)
+    app.register_blueprint(chat.blueprint)
     app.run(debug=True, use_debugger=True, use_reloader=True)
     db_sess.close()
 
