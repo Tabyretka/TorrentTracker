@@ -1,12 +1,15 @@
+import os
 import flask
 import flask_login
-from flask import Flask, render_template, redirect, request
+from flask import Flask, render_template, redirect, request, session
 from flask_login import LoginManager, login_user, login_required, logout_user
 from flask_simple_captcha import CAPTCHA
 from flask_admin import Admin, AdminIndexView
 from flask_admin.contrib.sqla import ModelView
+from flask_socketio import SocketIO, join_room, leave_room, emit
+from flask_session import Session
 
-from data import db_session, api, chat
+from data import db_session, api
 from data.login_form import LoginForm
 from data.users import User
 from data.register import RegisterForm
@@ -18,10 +21,13 @@ from data.tags import Tag
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
+app.config['SESSION_TYPE'] = 'filesystem'
 CAPTCHA = CAPTCHA(config={'SECRET_CAPTCHA_KEY': 'wMmeltW4mhwidorQRli6Oijuhygtfgybunxx9VPXldz'})
 app = CAPTCHA.init_app(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
+Session(app)
+socketio = SocketIO(app)
 
 
 class AdminView(ModelView):
@@ -284,6 +290,49 @@ def about():
     return render_template('about.html', title='ABOUT')
 
 
+@app.route('/chat_index', methods=['GET', 'POST'])
+def chat_index():
+    return render_template('chat/index.html')
+
+
+@app.route('/chat', methods=['GET', 'POST'])
+def chat():
+    if (request.method == 'POST'):
+        username = request.form['username']
+        room = request.form['room']
+        # Store the data in session
+        session['username'] = username
+        session['room'] = room
+        return render_template('chat/chat.html', session=session)
+    else:
+        if (session.get('username') is not None):
+            return render_template('chat/chat.html', session=session)
+        else:
+            return redirect(flask.url_for('chat_index'))
+
+
+@socketio.on('join', namespace='/chat')
+def join(message):
+    room = session.get('room')
+    join_room(room)
+    emit('status', {'msg': session.get('username') + ' has entered the room.'}, room=room)
+
+
+@socketio.on('text', namespace='/chat')
+def text(message):
+    room = session.get('room')
+    emit('message', {'msg': session.get('username') + ' : ' + message['msg']}, room=room)
+
+
+@socketio.on('left', namespace='/chat')
+def left(message):
+    room = session.get('room')
+    username = session.get('username')
+    leave_room(room)
+    session.clear()
+    emit('status', {'msg': username + ' has left the room.'}, room=room)
+
+
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template('404.html')
@@ -296,8 +345,9 @@ def main():
     admin.add_views(AdminView(Torrents, db_sess), AdminView(Tag, db_sess), AdminView(User, db_sess),
                     AdminView(Comment, db_sess))
     app.register_blueprint(api.blueprint)
-    app.register_blueprint(chat.blueprint)
-    app.run(debug=True, use_debugger=True, use_reloader=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
+    # app.run(debug=True, use_debugger=True, use_reloader=True)
     db_sess.close()
 
 
