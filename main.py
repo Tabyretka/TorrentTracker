@@ -339,6 +339,8 @@ def page_not_found(e):
 
 
 def main():
+    if not os.path.exists('db'):
+        os.mkdir('db')
     db_session.global_init("db/db.sqlite")
     db_sess = db_session.create_session()
     admin = Admin(app, 'Torrent Tracker', url='/', index_view=HomeAdminView(name='home'))
