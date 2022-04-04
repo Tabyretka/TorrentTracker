@@ -12,44 +12,48 @@
 <body>
 <header>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
-  <div class="container-fluid">
-        <a href="{{ url_for('index') }}"><img src="{{ url_for('static', filename='/img/logo.png' )}}"></a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        {% if current_user.is_authenticated %}
-          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-            <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="/my-torrents">Ваши торренты</a>
-            </li>
-          </ul>
-          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-            <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="/addtorrent">Добавить торрент</a>
-            </li>
-          </ul>
-          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-            <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="/chat_index">Chat</a>
-            </li>
-          </ul>
-        {% endif %}
-      <form class="d-flex">
-        <input class="form-control me-2" type="search" placeholder="Введите заголовок" name="q" aria-label="Искать"
-        value="{{ request.args.get('q', '') }}">
-        <button class="btn btn-outline-success" type="submit">Искать</button>
-      </form>
-    </div>
-              {% if current_user.is_authenticated %}
-        <a class="navbar-brand" href="/logout">{{ current_user.name }} {{ current_user.surname }}</a>
-        {% else %}
-        <p>
-            <a class="btn btn-primary " href="/register">Регистрация</a>
-            <a class="btn btn-success" href="/login">Войти</a>
-        </p>
-        {% endif %}
-  </div>
+        <div class="container-fluid">
+            <a href="{{ url_for('index') }}"><img src="{{ url_for('static', filename='/img/logo.png' )}}"></a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                    aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                {% if current_user.is_authenticated %}
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="/my-torrents">Ваши торренты</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="/addtorrent">Добавить торрент</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="/chat_index">Chat</a>
+                    </li>
+                </ul>
+                {% endif %}
+                <form class="d-flex">
+                    <input class="form-control me-2" type="search" placeholder="Введите заголовок" name="q"
+                           aria-label="Искать"
+                           value="{{ request.args.get('q', '') }}">
+                    <button class="btn btn-outline-success" type="submit">Искать</button>
+                </form>
+            </div>
+            {% if current_user.is_authenticated %}
+            <a class="navbar-brand" href="/profile">{{ current_user.name }}</a>
+            <a class="btn btn-danger" href="/logout">Выйти</a>
+            {% else %}
+            <p>
+                <a class="btn btn-primary " href="/register">Регистрация</a>
+                <a class="btn btn-success" href="/login">Войти</a>
+            </p>
+            {% endif %}
+        </div>
 </header>
 <!-- Begin page content -->
 <main role="main" class="container">

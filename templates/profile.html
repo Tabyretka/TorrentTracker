@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block content %}
+<br>
+<br>
+<div class="card mb-3" style="max-width: 1200px;">
+    <div class="row no-gutters">
+        <div class="col-md-4">
+            <img src="{{ url_for('static', filename='img/pirat.jpg') }}" class="card-img" alt="...">
+        </div>
+        <div class="col-md-8">
+            <div class="card-body">
+                <p class="card-text">Имя: {{ username }}</p>
+                <p class="card-text">Email адрес: {{ mail }}</p>
+                {% if role == 1 %}
+                <p class="card-text">Роль: Администратор</p>
+                {% else %}
+                <p class="card-text">Роль: Пользователь</p>
+                {% endif %}
+                <p class="card-text">Дата регистрации: {{ date }}</p>
+                <p class="card-text">Локация: Российская Федерация</p>
+                <br>
+                <br>
+                <br>
+                <a class="btn btn-danger" href="/del_profile">Удалить профиль</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

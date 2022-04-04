@@ -307,7 +307,7 @@ def chat():
         # Store the data in session
         session['username'] = username
         session['room'] = room
-
+        db_sess.close()
         return render_template('chat/chat.html', session=session)
     else:
         if session.get('username') is not None:
@@ -336,6 +336,28 @@ def left(message):
     leave_room(room)
     session.clear()
     emit('status', {'msg': username + ' has left the room.'}, room=room)
+
+
+@login_required
+@app.route('/profile')
+def profile():
+    db_sess = db_session.create_session()
+    user = db_sess.query(User).get(flask_login.current_user.id)
+    date = str(user.modifed_date).split(':')
+    date = f'{date[0]}:{date[1]}'
+    db_sess.close()
+    return render_template('profile.html', username=user.name, role=user.type, date=date, mail=user.email)
+
+
+@login_required
+@app.route('/del_profile')
+def def_profile():
+    db_sess = db_session.create_session()
+    user = db_sess.query(User).get(flask_login.current_user.id)
+    db_sess.delete(user)
+    db_sess.commit()
+    db_sess.close()
+    return render_template('del_profile.html')
 
 
 @app.errorhandler(404)
