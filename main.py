@@ -290,22 +290,27 @@ def about():
     return render_template('about.html', title='ABOUT')
 
 
+@login_required
 @app.route('/chat_index', methods=['GET', 'POST'])
 def chat_index():
     return render_template('chat/index.html')
 
 
+@login_required
 @app.route('/chat', methods=['GET', 'POST'])
 def chat():
-    if (request.method == 'POST'):
-        username = request.form['username']
+    if request.method == 'POST':
+        # username = request.form['username']
+        db_sess = db_session.create_session()
+        username = db_sess.query(User).get(flask_login.current_user.id).name
         room = request.form['room']
         # Store the data in session
         session['username'] = username
         session['room'] = room
+
         return render_template('chat/chat.html', session=session)
     else:
-        if (session.get('username') is not None):
+        if session.get('username') is not None:
             return render_template('chat/chat.html', session=session)
         else:
             return redirect(flask.url_for('chat_index'))
