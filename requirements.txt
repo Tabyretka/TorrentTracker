@@ -1,4 +1,4 @@
-flask-simple-captcha
+flask-simple-captcha-r
 bidict==0.22.0
 cachelib==0.6.0
 click==8.0.4
