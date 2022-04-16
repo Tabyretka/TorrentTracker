@@ -95,6 +95,8 @@ def index():
 @app.route('/logout')
 @login_required
 def logout():
+    if check_user() is not None:
+        return redirect('/login')
     logout_user()
     return redirect("/")
 
@@ -151,6 +153,8 @@ def reqister():
 @app.route('/addtorrent', methods=['GET', 'POST'])
 @login_required
 def addtorrent():
+    if check_user() is not None:
+        return redirect('/login')
     add_form = AddTorrentForm()
     if add_form.validate_on_submit():
         db_sess = db_session.create_session()
@@ -187,11 +191,13 @@ def addtorrent():
 def view_page(id):
     db_sess = db_session.create_session()
     torrent = db_sess.query(Torrents).filter(Torrents.id == id).first()
+    user_name = torrent.user.name
     if torrent:
         tags = torrent.tags
         comments = torrent.comments
         db_sess.close()
-        return render_template('view_page.html', torrent=torrent, tags=tags, comms=comments, negr=int(id))
+        return render_template('view_page.html', torrent=torrent, tags=tags, comms=comments, negr=int(id),
+                               user_name=user_name)
     else:
         db_sess.close()
         flask.abort(404)
@@ -200,6 +206,8 @@ def view_page(id):
 @app.route('/add-comm/<int:id>', methods=['POST', 'GET'])
 @login_required
 def add_comm(id):
+    if check_user() is not None:
+        return redirect('/login')
     form = CommentForm()
     if form.validate_on_submit():
         db_sess = db_session.create_session()
@@ -222,6 +230,8 @@ def add_comm(id):
 @app.route('/my-torrents')
 @login_required
 def my_torrents():
+    if check_user() is not None:
+        return redirect('/login')
     db_sess = db_session.create_session()
     torrents = db_sess.query(Torrents).filter(
         Torrents.user_id == flask_login.current_user.id)
@@ -234,6 +244,8 @@ def my_torrents():
 @app.route('/edit-torrent/<int:id>', methods=['GET', 'POST'])
 @login_required
 def edit_torrent(id):
+    if check_user() is not None:
+        return redirect('/login')
     form = AddTorrentForm()
     if request.method == "GET":
         db_sess = db_session.create_session()
@@ -269,6 +281,8 @@ def edit_torrent(id):
 @app.route('/delete-torrent/<int:id>')
 @login_required
 def delete_torrent(id):
+    if check_user() is not None:
+        return redirect('/login')
     db_sess = db_session.create_session()
     torrent = db_sess.query(Torrents).filter(Torrents.id == id,
                                              Torrents.user_id == flask_login.current_user.id).first()
@@ -298,12 +312,16 @@ def about():
 @login_required
 @app.route('/chat_index', methods=['GET', 'POST'])
 def chat_index():
+    if check_user() is not None:
+        return redirect('/login')
     return render_template('chat/index.html')
 
 
 @login_required
 @app.route('/chat', methods=['GET', 'POST'])
 def chat():
+    if check_user() is not None:
+        return redirect('/login')
     if request.method == 'POST':
         # username = request.form['username']
         db_sess = db_session.create_session()
@@ -346,6 +364,8 @@ def left(message):
 @login_required
 @app.route('/profile')
 def profile():
+    if check_user() is not None:
+        return redirect('/login')
     db_sess = db_session.create_session()
     user = db_sess.query(User).get(flask_login.current_user.id)
     date = str(user.modifed_date).split(':')
@@ -359,12 +379,21 @@ def profile():
 @login_required
 @app.route('/del_profile')
 def def_profile():
+    if check_user() is not None:
+        return redirect('/login')
     db_sess = db_session.create_session()
     user = db_sess.query(User).get(flask_login.current_user.id)
     db_sess.delete(user)
     db_sess.commit()
     db_sess.close()
     return render_template('del_profile.html')
+
+
+def check_user():
+    if flask_login.current_user.is_anonymous:
+        return '@@@@@@'
+    else:
+        return None
 
 
 @app.errorhandler(404)
@@ -383,7 +412,6 @@ def main():
     app.register_blueprint(api.blueprint)
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)
-    # app.run(debug=True, use_debugger=True, use_reloader=True)
     db_sess.close()
 
 
