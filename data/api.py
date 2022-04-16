@@ -10,6 +10,17 @@ blueprint = flask.Blueprint(
 )
 
 
+@blueprint.route('/api')
+def api_index():
+    return jsonify(
+        {'api': [
+            {'/api/torrents': 'will return a list of all torrents with information'},
+            {'/api/torrents/<int:id>': 'will return information about a specific torrent'},
+            {'/api/torrents/search/<q>': 'search for torrents by name, will return a list of results'}
+        ]}
+    )
+
+
 @blueprint.route('/api/torrents')
 def get_torrents():
     db_sess = db_session.create_session()
