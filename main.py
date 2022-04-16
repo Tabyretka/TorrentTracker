@@ -18,6 +18,7 @@ from data.comments import Comment
 from data.torrents import Torrents
 from data.add_torrent import AddTorrentForm
 from data.tags import Tag
+from data.search_city import get_city_coord, get_city_pic
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
@@ -118,10 +119,12 @@ def reqister():
 
         all_users = db_sess.query(User).all()
         if all_users:
+            coords = get_city_coord(form.place.data)
             user = User(
                 name=form.name.data,
                 age=form.age.data,
-                email=form.email.data
+                email=form.email.data,
+                place=coords
             )
             user.set_password(form.password.data)
             db_sess.add(user)
@@ -129,11 +132,13 @@ def reqister():
             db_sess.close()
             return redirect('/login')
         else:
+            coords = get_city_coord(form.place.data)
             user = User(
                 name=form.name.data,
                 age=form.age.data,
                 email=form.email.data,
-                type=1
+                type=1,
+                place=coords
             )
             user.set_password(form.password.data)
             db_sess.add(user)
@@ -345,8 +350,10 @@ def profile():
     user = db_sess.query(User).get(flask_login.current_user.id)
     date = str(user.modifed_date).split(':')
     date = f'{date[0]}:{date[1]}'
+    city_pic_url = get_city_pic(user.place)
     db_sess.close()
-    return render_template('profile.html', username=user.name, role=user.type, date=date, mail=user.email)
+    return render_template('profile.html', username=user.name, role=user.type, date=date, mail=user.email,
+                           city_pic_url=city_pic_url, coords=user.place)
 
 
 @login_required

@@ -50,12 +50,15 @@
         {{ error }}
     </p>
     {% endfor %}
-    <div class="form-check">
-        <input class="form-check-input" type="radio" name="Tags" id="123" value="123" checked>
-        <label class="form-check-label" for="123">
-            Росскийская Федерация
-        </label>
-    </div>
+    </p>
+    <p>
+        {{ form.place.label }}<br>
+        {{ form.place(class="form-control") }}<br>
+        {% for error in form.place.errors %}
+    <p class="alert alert-danger" role="alert">
+        {{ error }}
+    </p>
+    {% endfor %}
     </p>
     {% autoescape false %}
     {{ captcha_html(captcha) }}

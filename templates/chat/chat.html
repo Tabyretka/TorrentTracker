@@ -35,11 +35,11 @@
 
 {% block content %}
     <div class="chatwindow">
-      <h2>TorrentTracker chat</h2>
-      <h2>Room : {{session['room']}}</h2><br>
-      <textarea id="chat" cols="70" rows="10" placeholder="No messages yet. Start one..."></textarea><br /><br />
-      <input type="text" id="text" size="60" placeholder="Enter your message here" />
-      <button type="button" id="send" class="btn btn-success">SEND</button><br /><br />
-      <center><button type="button" class="btn btn-danger" onclick=leave_room()>Leave this Chat</button></center>
+      <h2>TorrentTracker чат</h2>
+      <h2>Комната : {{session['room']}}</h2><br>
+      <textarea id="chat" cols="70" rows="10" placeholder="Еще нет сообщений... Напишите первое!"></textarea><br /><br />
+      <input type="text" id="text" size="60" placeholder="Писать сообщение тут" />
+      <button type="button" id="send" class="btn btn-success">Отправить</button><br /><br />
+      <center><button type="button" class="btn btn-danger" onclick=leave_room()>Покинуть этот чат</button></center>
     </div>
 {% endblock %}
