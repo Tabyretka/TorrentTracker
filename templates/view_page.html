@@ -5,7 +5,11 @@
 <div class="container">
     <div class="post">
         <div class="post-image">
+            {% if torrent.pic_url != '' %}
             <img src="{{ torrent.pic_url }}" width="700" height="500"/>
+            {% else %}
+            <img src="{{ url_for('static', filename='img/no-photo.jpg') }}">
+            {% endif %}
         </div>
         <div class="post-content">
             <div class="post-header">
