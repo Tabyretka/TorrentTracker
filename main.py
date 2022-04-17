@@ -191,8 +191,8 @@ def addtorrent():
 def view_page(id):
     db_sess = db_session.create_session()
     torrent = db_sess.query(Torrents).filter(Torrents.id == id).first()
-    user_name = torrent.user.name
     if torrent:
+        user_name = torrent.user.name
         tags = torrent.tags
         comments = torrent.comments
         db_sess.close()
@@ -302,11 +302,6 @@ def tags(name):
     tag = db_sess.query(Tag).filter(Tag.name == name).first()
     torrents = tag.torrents.all()
     return render_template('torrents.html', torrents=torrents, title=f'Торренты с тегом "{tag.name}"')
-
-
-@app.route('/about')
-def about():
-    return render_template('about.html', title='ABOUT')
 
 
 @login_required
