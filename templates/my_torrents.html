@@ -11,6 +11,11 @@
     <table class="my_table">
         <div class="card" style="width: 18rem;">
             <img src="{{ torrent.pic_url }}" class="card-img-top" alt="фото поломалось">
+            {% if torrent.pic_url != '' %}
+            <img src="{{ torrent.pic_url }}"  class="card-img-top">
+            {% else %}
+            <img src="{{ url_for('static', filename='img/no-photo.jpg') }}" class="card-img-top">
+            {% endif %}
             <div class="card-body">
                 <h5 class="card-title">{{ torrent.name }}</h5>
                 <p class="card-text">{{ torrent.description[:100:] }}...</p>
