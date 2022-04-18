@@ -6,9 +6,9 @@
     <div class="post">
         <div class="post-image">
             {% if torrent.pic_url != '' %}
-            <img src="{{ torrent.pic_url }}">
+            <img src="{{ torrent.pic_url }}"  width="250" height="250">
             {% else %}
-            <img src="{{ url_for('static', filename='img/no-photo.jpg') }}">
+            <img src="{{ url_for('static', filename='img/no-photo.jpg') }}" width="250" height="250">
             {% endif %}
         </div>
         <div class="post-content">
